@@ -1,5 +1,7 @@
 const http = require("http");
+
 require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -31,6 +33,21 @@ app.use(morgan("tiny"));
 
 app.get("/ping", (req, res) => {
   res.status(200).json({ message: "pong" });
+});
+
+app.post("/users", async (req, res) => {
+  const { name, email, profileImage, password } = req.body;
+
+  await appDataSource.query(
+    `INSERT INTO users (
+      name,
+      email,
+      profile_image,
+      password )
+      VALUES (?, ?, ?, ?) ;`,
+    [name, email, profileImage, password]
+  );
+  res.status(201).json({ message: "userCreated" });
 });
 
 const server = http.createServer(app);
