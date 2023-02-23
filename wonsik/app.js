@@ -1,4 +1,3 @@
-const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
@@ -33,7 +32,7 @@ app.get("/ping", (req, res) => {
 
 //Create a user
 app.post("/users", async (req, res, next) => {
-  const { name, email, profile_image, password } = req.body;
+  const { name, email, profileImage, password } = req.body;
 
   await appDataSource.query(
     `INSERT INTO users(
@@ -43,17 +42,16 @@ app.post("/users", async (req, res, next) => {
       password
     )VALUES (?, ?, ?, ?);
     `,
-    [name, email, profile_image, password]
+    [name, email, profileImage, password]
   );
 
   res.status(201).json({ message: "userCreated" });
 });
 
-const server = http.createServer(app);
 const PORT = process.env.PORT;
 
 const start = async () => {
-  server.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+  app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
 };
 
 start();
