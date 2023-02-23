@@ -1,12 +1,12 @@
 -- migrate:up
-CREATE TABLE authors(
+CREATE TABLE posts(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    age INT NULL,
+    title VARCHAR(100) NOT NULL,
+    content VARCHAR(3000) NULL,
+    user_id INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- migrate:down
-DROP TABLE authors;
+DROP TABLE posts;

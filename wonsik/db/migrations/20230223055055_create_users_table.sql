@@ -1,12 +1,13 @@
 -- migrate:up
-CREATE TABLE books(
+CREATE TABLE users(
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    description VARCHAR(2000) NULL,
-    cover_image VARCHAR(1000) NULL,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(200) NULL,
+    profile_image VARCHAR(1000) NULL,
+    password VARCHAR(200) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- migrate:down
-DROP TABLE books;
+DROP TABLE users;
