@@ -1,8 +1,8 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-
-require("dotenv").config();
 
 const { DataSource } = require("typeorm");
 
@@ -21,8 +21,8 @@ appDataSource.initialize().then(() => {
 
 const app = express();
 
-app.use(express.json());
-app.use(cors());
+app.use(express.json()); //json으로 변환
+app.use(cors()); // 데이터 통신 도움
 app.use(morgan("dev"));
 
 //health check
@@ -31,8 +31,8 @@ app.get("/ping", (req, res) => {
 });
 
 //Create a user
-app.post("/users", async (req, res, next) => {
-  const { name, email, profileImage, password } = req.body;
+app.post("/users", async (req, res) => {
+  const { name, email, profileImage, password } = req.body; //구조 분해 할당
 
   await appDataSource.query(
     `INSERT INTO users(
@@ -51,7 +51,9 @@ app.post("/users", async (req, res, next) => {
 const PORT = process.env.PORT;
 
 const start = async () => {
-  app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+  app.listen(PORT, () =>
+    console.log(`💡💡💡 server is listening on ${PORT} 💡💡💡`)
+  );
 };
 
 start();
