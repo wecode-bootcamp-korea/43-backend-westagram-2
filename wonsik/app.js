@@ -1,9 +1,8 @@
-const http = require("http");
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-
-require("dotenv").config();
 
 const { DataSource } = require("typeorm");
 
@@ -31,11 +30,30 @@ app.get("/ping", (req, res) => {
   res.status(200).json({ message: "pong" });
 });
 
-const server = http.createServer(app);
+//Create a user
+app.post("/users", async (req, res) => {
+  const { name, email, profileImage, password } = req.body;
+
+  await appDataSource.query(
+    `INSERT INTO users(
+      name,
+      email,
+      profile_image,
+      password
+    )VALUES (?, ?, ?, ?);
+    `,
+    [name, email, profileImage, password]
+  );
+
+  res.status(201).json({ message: "userCreated" });
+});
+
 const PORT = process.env.PORT;
 
 const start = async () => {
-  server.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+  app.listen(PORT, () =>
+    console.log(`💡💡💡 server is listening on ${PORT} 💡💡💡`)
+  );
 };
 
 start();
