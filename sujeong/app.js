@@ -5,7 +5,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { DataSource } = require("typeorm");
+const { DataSource, AbstractRepository, And } = require("typeorm");
 app = express();
 
 const appDataSource = new DataSource({
@@ -62,11 +62,12 @@ app.post("/posts", async (req, res) => {
       VALUES (?, ?, ?, ?) ;`,
     [title, content, userId, postImageUrl]
   );
+
   res.status(201).json({ message: "postCreated" });
 });
 
 app.get("/search", async (req, res) => {
-  await appDataSource.manager.query(
+  const search = await appDataSource.manager.query(
     `SELECT
     users.id AS userId,
     users.profile_image AS userProfileImage, 
@@ -74,19 +75,17 @@ app.get("/search", async (req, res) => {
     posts.image_url AS postingImageUrl,
     posts.content AS postingContent
     FROM posts
-    INNER JOIN users ON posts.user_id=users.id`,
-    (err, rows) => {
-      res.status(200).json({ data: rows });
-    }
+    INNER JOIN users ON posts.user_id=users.id`
   );
+  res.status(200).json({ data: search });
 });
 
-app.get("/posting_search/:userId", async (req, res) => {
+app.get("/users/:userId/posts", async (req, res) => {
   const { userId } = req.params;
   const result = await appDataSource.query(
     `SELECT
     users.id AS userId,
-    users.profile_image AS userProfileImage,
+    users.profile_image AS userProfileImage, 
     JSON_ARRAYAGG(
     JSON_OBJECT(
     "postingId", posts.id,
