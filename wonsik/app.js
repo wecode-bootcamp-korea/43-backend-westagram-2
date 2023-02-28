@@ -127,7 +127,7 @@ app.patch("/posts/:postId", async (req, res) => {
     [content, postId]
   );
 
-  const result = await appDataSource.query(
+  const [result] = await appDataSource.query(
     `
     SELECT
      u.id      as userId,
@@ -142,7 +142,7 @@ app.patch("/posts/:postId", async (req, res) => {
     [postId]
   );
 
-  return res.status(201).json({ data: result });
+  return res.status(200).json({ data: result });
 });
 
 // 7번
