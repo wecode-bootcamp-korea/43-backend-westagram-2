@@ -5,7 +5,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
-const { DataSource, AbstractRepository, And } = require("typeorm");
+const { DataSource } = require("typeorm");
 app = express();
 
 const appDataSource = new DataSource({
@@ -130,7 +130,7 @@ app.patch("/posting_update/:postId", async (req, res) => {
       `,
     [postId]
   );
-  res.status(201).json({ data: update[0] });
+  res.status(200).json({ data: update });
 });
 
 app.delete("/posts_delete/:postId", async (req, res) => {
