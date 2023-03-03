@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const logger = require("morgan");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { DataSource } = require(`typeorm`);
 
 const app = express();
@@ -27,6 +29,12 @@ const PORT = process.env.PORT;
 
 app.post("/users", async (req, res) => {
   const { name, email, profileImage, password } = req.body;
+  const saltRounds = 12;
+  const makeHash = async (password, saltRounds) => {
+    return await bcrypt.hash(password, saltRounds);
+  };
+  const passwordHash = await makeHash(password, saltRounds);
+
   await dbDataSource.query(
     `INSERT INTO users(
       name, 
@@ -35,10 +43,61 @@ app.post("/users", async (req, res) => {
       password
       ) VALUES (?, ?, ?, ?);
     `,
-    [name, email, profileImage, password]
+    [name, email, profileImage, passwordHash]
   );
 
   res.status(201).json({ message: "successfully created" });
+});
+
+app.get("/users/login", async (req, res) => {
+  const { email, password } = req.body;
+  const [userData] = await dbDataSource.query(
+    `
+      SELECT id, email, password
+      FROM users
+      WHERE email = ?
+    `,
+    [email]
+  );
+  const checkHash = async (password, hashedPassword) => {
+    return await bcrypt.compare(password, hashedPassword);
+  };
+  const payload = { foo: "bar" };
+  const secretkey = "mySecretKey";
+  const jwtToken = jwt.sign(payload, secretkey);
+  const isChecked = await checkHash(password, userData.password);
+  if (isChecked == true) {
+    res.status(200).json({ accessToken: jwtToken });
+  } else {
+    res.status(400).json({ message: "INVALID USER" });
+  }
+  return jwtToken;
+});
+
+app.post("/posts/userWithToken", async (req, res) => {
+  const { title, content, userId } = req.body;
+  const jwtToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE2Nzc4MDkzMTF9.-idCKsJUD3-ciPdlwoxSO6gOMtxLMScPEoJ3UuisUR8";
+  const mysecretkey = "mySecretKey";
+
+  const checkToken = await jwt.verify(jwtToken, mysecretkey);
+  console.log("~~~~~~~~~~~~~~");
+  console.log(checkToken);
+  console.log("~~~~~~~~~~~~~~");
+  try {
+    await jwt.verify(jwtToken, mysecretkey);
+    await dbDataSource.query(
+      `INSERT INTO posts(
+        title, 
+        content,
+        user_id
+        ) VALUES (?, ? ,?)
+      `,
+      [title, content, userId]
+    );
+  } catch (e) {
+    res.status(400).json({ message: "INVALID ACCESS TOKEN" });
+  }
 });
 
 app.post("/posts", async (req, res) => {
